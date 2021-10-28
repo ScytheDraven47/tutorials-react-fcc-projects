@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react'
+import React, { useState, useContext, useEffect, useRef } from 'react'
 import { useCallback } from 'react'
 
 const url = 'https://www.thecocktaildb.com/api/json/v1/1/search.php?s='
@@ -8,6 +8,8 @@ const AppProvider = ({ children }) => {
 	const [loading, setLoading] = useState(false)
 	const [searchTerm, setSearchTerm] = useState('')
 	const [cocktails, setCocktails] = useState([])
+
+	let typingTimeout = useRef(null)
 
 	const fetchDrinks = useCallback(() => {
 		setLoading(true)
@@ -37,7 +39,13 @@ const AppProvider = ({ children }) => {
 	}, [searchTerm])
 
 	useEffect(() => {
-		fetchDrinks()
+		clearTimeout(typingTimeout.current)
+		typingTimeout.current = setTimeout(() => {
+			fetchDrinks()
+		}, 1000)
+		return () => {
+			clearTimeout(typingTimeout.current)
+		}
 	}, [searchTerm, fetchDrinks])
 
 	return (
